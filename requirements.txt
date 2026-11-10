@@ -1,0 +1,13 @@
+# PyTorch is NOT listed here on purpose. Colab already has it, and on a laptop or CCAST the right
+# build depends on your GPU. Install it first: https://pytorch.org/get-started/locally/
+# Then:  pip install -r requirements.txt
+# The agents add packages here (with the version that worked) as the project needs them.
+
+torch_geometric>=2.5
+numpy
+pandas
+scikit-learn
+matplotlib
+networkx
+pyyaml
+tqdm

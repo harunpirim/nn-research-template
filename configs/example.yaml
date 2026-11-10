@@ -1,0 +1,66 @@
+# configs/example.yaml: an example of YOUR control panel. Don't train from this file.
+#
+# The AI writes one config like this per model in your project, with a comment on every
+# setting. YOU choose the values. Every run copies its config into runs/<run_id>/config.yaml,
+# so each result records exactly what you chose.
+#
+# This example comes from a trial run that reproduced Kipf & Welling, "Semi-Supervised
+# Classification with Graph Convolutional Networks", ICLR 2017 (arXiv:1609.02907): a 2-layer GCN
+# on Cora reached 81.8 ± 0.3% test accuracy (paper: 81.5%). Values marked "Paper:" come from the
+# paper; "Paper: not stated" marks a default the agents chose and listed in reports/plan.md.
+# Your own project's config will have different keys and values.
+#
+# Tip: write small numbers with a decimal point (5.0e-4, not 5e-4).
+
+name: example_cora_gcn         # Unique short name for this experiment; used in run folder names.
+task: node_classification      # What is predicted: node_classification, link_prediction,
+                               # graph_classification, classification, regression, ...
+
+data:
+  dataset: Cora                # A PyG built-in dataset, or "custom" to read data/processed/.
+  split: public                # "public" = the dataset's standard split (needed to compare
+                               # with published numbers). "random" = use split_seed + fractions.
+  split_seed: 42               # Fixes a random split. Changing it makes a different experiment.
+  val_fraction: 0.2            # Used only when split: random.
+  test_fraction: 0.2           # Used only when split: random.
+
+model:
+  name: gcn                    # A key in MODELS in src/models.py: gcn = graph convolutional
+                               # network (uses the links), mlp = baseline (ignores them).
+  hidden_dim: 16               # Width of the hidden layer. Typical 16–256. Bigger = more
+                               # capacity and more risk of overfitting. Paper: 16 (Sec. 6.1).
+  num_layers: 2                # Message-passing layers = how many hops away a node can "see".
+                               # Typical 2–3; deeper GNNs often over-smooth. Paper: 2 (Sec. 5.2).
+  dropout: 0.5                 # Fraction of values zeroed at random during training, applied to
+                               # the input of every layer. Typical 0.0–0.6.
+                               # Paper: 0.5 "for all layers" (Sec. 5.2, 6.1).
+  bias: false                  # Add a learned bias vector to each layer? Paper: no bias (Eq. 9).
+
+optim:
+  optimizer: adam              # adam is a safe default; sgd needs more learning-rate tuning.
+  lr: 0.01                     # Learning rate = step size. Typical 1.0e-4 to 1.0e-2. Too high:
+                               # loss jumps or becomes NaN. Too low: very slow. Paper: 0.01.
+  weight_decay: 5.0e-4         # L2 penalty on weights; reduces overfitting. Typical 0 to 1.0e-3.
+                               # Paper: 5.0e-4 (Sec. 6.1).
+  weight_decay_on: first_layer # Which weights get the L2 penalty: first_layer or all.
+                               # Paper: first layer only (Sec. 5.2).
+
+train:
+  epochs: 200                  # Upper limit; early stopping usually ends sooner. Paper: 200.
+  patience: 10                 # Stop when the monitored metric hasn't improved for this many
+                               # epochs in a row. Typical 10–100. Paper: 10 (Sec. 5.2).
+  monitor: val_loss            # Validation metric for early stopping and for choosing which weights
+                               # are kept: val_loss (minimized) or val_acc (maximized).
+                               # Paper: validation loss (Sec. 5.2).
+  batch_size: null             # null = full batch (the whole graph at once). For many graphs or
+                               # tabular data, typical 32–256.
+  device: auto                 # auto (GPU if available), cpu, cuda, or mps.
+  deterministic: true          # Repeatable algorithms: the same seed gives the same numbers.
+                               # Slightly slower on GPUs. Paper: not stated.
+  seeds: [0, 1, 2]             # One run per seed; results are reported as mean ± std.
+
+# Optional: try several values. Every combination × every seed becomes its own run,
+# so this example would make 3 × 2 × 3 = 18 runs.
+# sweep:
+#   model.hidden_dim: [16, 64, 128]
+#   optim.lr: [0.01, 0.005]

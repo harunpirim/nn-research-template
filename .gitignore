@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store
+
+# Data stays out of git by default (it can be large, private, or licensed).
+# Delete these lines if your data is small and public. Splits ARE committed: they are small
+# and needed to reproduce results.
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Paper PDFs are usually copyrighted: keep them locally, and cite and link them in reports/plan.md.
+papers/*.pdf
+
+# Run records (config, env, history, metrics) are committed. Heavy files and scratch are not.
+runs/_smoke/
+runs/_slurm/
+runs/**/*.pt
+runs/**/*.pth
+runs/**/*.npy
+runs/**/*.npz
